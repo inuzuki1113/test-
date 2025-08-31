@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>DogeUnblocker Lite v2</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DogeUnblocker Lite v2</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; transition: background 0.3s, color 0.3s; }
+  body.dark { background: #121212; color: #eee; }
+  input, button { padding: 5px; margin: 5px; }
+  ul { list-style: none; padding: 0; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>DogeUnblocker Lite v2 🚀</h1>
-    <button id="darkToggle">🌙/☀</button>
-  </header>
+<h1>DogeUnblocker Lite v2</h1>
 
-  <main>
-    <input id="urlInput" type="text" placeholder="URLを入力してEnter"/>
-    <button id="goBtn">Go</button>
+<!-- Dark Mode -->
+<button id="darkToggle">Toggle Dark Mode</button>
 
-    <section id="bookmarks">
-      <h2>⭐ ブックマーク</h2>
-      <ul id="bookmarkList"></ul>
-      <input id="bmInput" type="text" placeholder="ブックマーク追加用URL"/>
-      <button id="addBmBtn">追加</button>
-    </section>
-  </main>
+<hr>
 
-  <script src="script.js" defer></script>
+<!-- URL登録 -->
+<label>行きたいURL：</label>
+<input type="text" id="urlInput" placeholder="https://example.com">
+<button id="goBtn">Go</button>
+
+<hr>
+
+<!-- ブックマーク -->
+<label>ブックマーク追加：</label>
+<input type="text" id="bmInput" placeholder="https://example.com">
+<button id="addBmBtn">Add Bookmark</button>
+<ul id="bookmarkList"></ul>
+
+<script src="script.js"></script>
 </body>
 </html>
