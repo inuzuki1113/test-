@@ -1,0 +1,14 @@
+{
+  "name": "dogeunblocker-lite-v2",
+  "version": "1.0.0",
+  "description": "軽量版 DogeUnblocker v4 — Node.js + Express",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
