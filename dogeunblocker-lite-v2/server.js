@@ -1,23 +1,41 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import crypto from "crypto";
+import { promises as fs } from "fs";
+import path from "path";
 import { Buffer } from "buffer";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 app.use(express.static("dogeunblocker-lite-v2/static"));
 app.use(express.json());
 
-const urlMap = {}; // ランダムキー → 実際のURL
+const MAP_FILE = path.join("dogeunblocker-lite-v2", "urlMap.json");
+
+// --- URLマップ読み込み ---
+let urlMap = {};
+async function loadUrlMap() {
+  try {
+    const data = await fs.readFile(MAP_FILE, "utf8");
+    urlMap = JSON.parse(data);
+  } catch (err) {
+    urlMap = {};
+  }
+}
+async function saveUrlMap() {
+  await fs.writeFile(MAP_FILE, JSON.stringify(urlMap, null, 2));
+}
+
+await loadUrlMap();
 
 // --- URL登録API ---
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).send("URLが必要です");
 
-  const key = crypto.randomBytes(4).toString("hex"); // 8文字ランダム
+  const key = crypto.randomBytes(4).toString("hex");
   urlMap[key] = url.replace(/^https?:\/\//, "");
+  await saveUrlMap();
   res.json({ key });
 });
 
@@ -30,7 +48,7 @@ app.use("/proxy/:key/*?", (req, res, next) => {
   const proxy = createProxyMiddleware({
     target: `https://${targetUrl}`,
     changeOrigin: true,
-    selfHandleResponse: true, // レスポンスを自分で操作
+    selfHandleResponse: true,
     onProxyRes(proxyRes, req2, res2) {
       const chunks = [];
       proxyRes.on("data", (chunk) => chunks.push(chunk));
@@ -38,14 +56,14 @@ app.use("/proxy/:key/*?", (req, res, next) => {
         let body = Buffer.concat(chunks);
         const contentType = proxyRes.headers['content-type'] || "";
 
-        // HTML / JS / CSS はテキストとして書き換え
         if (contentType.includes("text/html") || contentType.includes("application/javascript") || contentType.includes("text/css")) {
           body = body.toString("utf8");
 
-          // URL置換: href / src / import / require / fetch / axios なども対象
+          // HTML/JS内のリンク書き換え
           body = body.replace(/(["'`])https?:\/\/([^\/"'`]+)/g, (match, quote, host) => {
             const newKey = crypto.randomBytes(4).toString("hex");
             urlMap[newKey] = host;
+            saveUrlMap(); // 更新を即保存
             return `${quote}/proxy/${newKey}`;
           });
 
@@ -54,7 +72,6 @@ app.use("/proxy/:key/*?", (req, res, next) => {
           return;
         }
 
-        // 画像・動画などはそのまま返す
         Object.keys(proxyRes.headers).forEach((key) => {
           res2.setHeader(key, proxyRes.headers[key]);
         });
@@ -67,5 +84,5 @@ app.use("/proxy/:key/*?", (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ DogeUnblocker Lite v2 (JS対応版) running on port ${PORT}`);
+  console.log(`✅ DogeUnblocker Lite v2 (永続化版) running on port ${PORT}`);
 });
