@@ -3,22 +3,19 @@ const goBtn = document.getElementById("goBtn");
 const bmInput = document.getElementById("bmInput");
 const bmList = document.getElementById("bookmarkList");
 
-// --- Dark Mode Toggle ---
+// Dark Mode
 const body = document.body;
 const darkToggle = document.getElementById("darkToggle");
-
 darkToggle.addEventListener("click", () => {
   body.classList.toggle("dark");
   localStorage.setItem("dark", body.classList.contains("dark"));
 });
-
 if (localStorage.getItem("dark") === "true") body.classList.add("dark");
 
-// --- URL登録＆Go ---
+// URL登録 & Go
 goBtn.addEventListener("click", async () => {
   const url = urlInput.value.trim();
   if (!url) return;
-
   try {
     const res = await fetch("/register", {
       method: "POST",
@@ -32,7 +29,7 @@ goBtn.addEventListener("click", async () => {
   }
 });
 
-// --- Bookmark ---
+// Bookmark
 function loadBookmarks() {
   bmList.innerHTML = "";
   const bookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
@@ -58,11 +55,9 @@ function removeBm(i) {
   loadBookmarks();
 }
 
-// --- ブックマーク登録ボタン ---
 document.getElementById("addBmBtn").addEventListener("click", async () => {
   const url = bmInput.value.trim();
   if (!url) return;
-
   try {
     const res = await fetch("/register", {
       method: "POST",
@@ -77,5 +72,4 @@ document.getElementById("addBmBtn").addEventListener("click", async () => {
   }
 });
 
-// --- 初期ロード ---
 loadBookmarks();
