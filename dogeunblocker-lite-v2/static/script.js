@@ -38,7 +38,7 @@ function loadBookmarks() {
   const bookmarks = JSON.parse(localStorage.getItem("bookmarks") || "[]");
   bookmarks.forEach((bm, i) => {
     const li = document.createElement("li");
-    li.innerHTML = `<a href="/proxy/${bm.key}">${bm.url}</a> 
+    li.innerHTML = `<a href="/proxy/${bm.key}" target="_blank">${bm.url}</a> 
                     <button onclick="removeBm(${i})">❌</button>`;
     bmList.appendChild(li);
   });
@@ -58,21 +58,24 @@ function removeBm(i) {
   loadBookmarks();
 }
 
+// --- ブックマーク登録ボタン ---
 document.getElementById("addBmBtn").addEventListener("click", async () => {
-  if (!bmInput.value.trim()) return;
+  const url = bmInput.value.trim();
+  if (!url) return;
 
   try {
     const res = await fetch("/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: bmInput.value.trim() })
+      body: JSON.stringify({ url })
     });
     const data = await res.json();
-    saveBookmark(bmInput.value.trim(), data.key);
+    saveBookmark(url, data.key);
     bmInput.value = "";
   } catch (err) {
     alert("登録エラー: " + err.message);
   }
 });
 
+// --- 初期ロード ---
 loadBookmarks();
